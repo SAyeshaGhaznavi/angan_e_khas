@@ -229,6 +229,7 @@ class _UploadScreenState extends State<UploadScreen> {
                       MaterialPageRoute(
                         builder: (_) => StyleSelectionScreen(
                           description: _descController.text.trim(),
+                           photo: _image!,
                         ),
                       ),
                     );

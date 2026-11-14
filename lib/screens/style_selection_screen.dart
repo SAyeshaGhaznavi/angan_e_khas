@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import '../services/redesign_api.dart';
 import '../theme/app_theme.dart';
 import 'redesign_result_screen.dart';
 
 class StyleSelectionScreen extends StatefulWidget {
   final String description;
-  const StyleSelectionScreen({super.key, this.description = ''});
+  final File photo;
+  const StyleSelectionScreen({super.key, required this.photo, this.description = ''});
 
   @override
   State<StyleSelectionScreen> createState() => _StyleSelectionScreenState();
@@ -14,6 +17,32 @@ class _StyleSelectionScreenState extends State<StyleSelectionScreen> {
   String _selectedRoom = 'Bedroom';
   int _selectedStyleIdx = 0;
   double _budget = 220000;
+  bool _loading = false;
+
+  Future<void> _generate() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      final style = {'Japandi': 'japandi', 'Mediterranean': 'mediterranean',
+        'Traditional': 'traditional', 'Modern Minimal': 'minimalist'}[styles[_selectedStyleIdx].name]!;
+      final room = {'Bedroom': 'bedroom', 'Lounge': 'living room',
+        'Study': 'home office', 'Kitchen': 'kitchen'}[_selectedRoom]!;
+      final response = await RedesignApi.redesign(
+        photo: widget.photo, prompt: widget.description, style: style, room: room);
+      if (!mounted) return;
+      Navigator.push(context, MaterialPageRoute(
+        builder: (_) => RedesignResultScreen(original: widget.photo,
+          generated: response.imageBytes, lockPct: response.lockPct,
+          room: room, style: styles[_selectedStyleIdx].name)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Redesign failed: $e'), duration: const Duration(seconds: 8)));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
 
   final rooms = ['Bedroom', 'Lounge', 'Study', 'Kitchen'];
   final styles = [
@@ -215,15 +244,8 @@ class _StyleSelectionScreenState extends State<StyleSelectionScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RedesignResultScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Redesign this room'),
+                   onPressed: _loading ? null : _generate,
+                   child: Text(_loading ? 'Generating your redesign…' : 'Redesign this room'),
                 ),
               ),
             ],

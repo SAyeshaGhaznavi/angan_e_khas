@@ -1,8 +1,17 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class RedesignResultScreen extends StatefulWidget {
-  const RedesignResultScreen({super.key});
+  final File original;
+  final Uint8List generated;
+  final int? lockPct;
+  final String room;
+  final String style;
+
+  const RedesignResultScreen({super.key, required this.original, required this.generated,
+    required this.lockPct, required this.room, required this.style});
 
   @override
   State<RedesignResultScreen> createState() => _RedesignResultScreenState();
@@ -42,113 +51,12 @@ class _RedesignResultScreenState extends State<RedesignResultScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // AFTER (base)
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFE4E7D6), Color(0xFFBFA282)],
-                        stops: [0.64, 1.0],
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 60,
-                          top: 80,
-                          child: Container(
-                            width: 90,
-                            height: 130,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF7F5EC),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 90,
-                          bottom: 80,
-                          child: Container(
-                            width: 140,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.moss,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                                bottomLeft: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 230,
-                          bottom: 80,
-                          child: Container(
-                            width: 50,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.terracotta.withOpacity(0.9),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                topRight: Radius.circular(8),
-                                bottomLeft: Radius.circular(3),
-                                bottomRight: Radius.circular(3),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // BEFORE (clipped)
+                  // Both images use the same BoxFit so the slider aligns them.
+                  Image.memory(widget.generated, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
                   ClipRect(
                     clipper: _BeforeClipper(_sliderValue),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFFDFD6C9), Color(0xFFBEAB92)],
-                          stops: [0.64, 1.0],
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            left: 60,
-                            top: 80,
-                            child: Container(
-                              width: 90,
-                              height: 130,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF2F3EC),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 90,
-                            bottom: 80,
-                            child: Container(
-                              width: 140,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF9A9E80),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(12),
-                                  topRight: Radius.circular(12),
-                                  bottomLeft: Radius.circular(5),
-                                  bottomRight: Radius.circular(5),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: Image.file(widget.original, fit: BoxFit.contain,
+                      width: double.infinity, height: double.infinity),
                   ),
                   // Slider handle
                   Align(
@@ -226,10 +134,10 @@ class _RedesignResultScreenState extends State<RedesignResultScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('MASTER BEDROOM',
+                            Text(widget.room.toUpperCase(),
                                 style: AppTheme.label(size: 9)),
                             const SizedBox(height: 6),
-                            Text('Quiet Green',
+                            Text(widget.style,
                                 style: AppTheme.fraunces(
                                     size: 21,
                                     weight: FontWeight.w500,
@@ -242,7 +150,7 @@ class _RedesignResultScreenState extends State<RedesignResultScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Four pieces replaced. Walls, window and proportions untouched.',
+                    'Your generated redesign. Compare it with your original room above.',
                     style: AppTheme.inter(
                         size: 11.5,
                         color: AppColors.muted,
@@ -324,7 +232,7 @@ class _RedesignResultScreenState extends State<RedesignResultScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('94',
+          Text(widget.lockPct?.toString() ?? '—',
               style: AppTheme.fraunces(
                 size: 18,
                 weight: FontWeight.w600,
