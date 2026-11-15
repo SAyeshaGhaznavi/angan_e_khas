@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'upload_screen.dart';
+import 'compatibility_screen.dart';
 import 'moodboard_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -149,6 +150,34 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 15),
+            InkWell(
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CompatibilityScreen())),
+              borderRadius: BorderRadius.circular(17),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(color: Colors.white,
+                  borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: AppColors.line)),
+                child: Row(children: [
+                  Container(width: 42, height: 42,
+                    decoration: BoxDecoration(color: AppColors.sagePale,
+                      borderRadius: BorderRadius.circular(13)),
+                    child: const Icon(Icons.chair_alt_outlined, color: AppColors.forest)),
+                  const SizedBox(width: 13),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Will it work in your room?',
+                        style: AppTheme.fraunces(size: 15)),
+                      const SizedBox(height: 4),
+                      Text('Check a furniture or decor match',
+                        style: AppTheme.inter(size: 10.5, color: AppColors.muted)),
+                    ])),
+                  const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.terracotta),
+                ]),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // Your rooms
@@ -244,6 +273,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Text('Start a redesign'),
               ),
             ),
+
           ],
         ),
       ),
